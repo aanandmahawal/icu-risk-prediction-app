@@ -42,26 +42,26 @@ def explain_risk_factors(input_df, prediction, streamlit_mode=False):
         if streamlit_mode:
             import streamlit as st
             if is_header:
-                st.markdown(f"---\n### {msg}")
+                st.markdown(f"### {msg}")
             else:
-                st.markdown(f"- {msg}")
+                st.markdown(msg)
         else:
             print(msg)
 
-    # Final Explanation Output
+    # Explanation output
     out("Explanation of Risk Factors:", is_header=True)
 
     if prediction == 1:
         if reasons:
             out("🛑 ICU likely required due to:")
             for r in reasons:
-                out(r)
+                out(f"- {r}")
         else:
             out("🛑 ICU risk predicted, but no strong individual vital signs triggered.")
     else:
         if reasons:
             out("⚠️ Some warning signs detected, but overall patient is not classified as ICU risk:")
             for r in reasons:
-                out(r)
+                out(f"- {r}")
         else:
             out("✅ All vital signs are within safe clinical range.")
