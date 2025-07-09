@@ -3,7 +3,7 @@ import os
 import joblib
 from predictor import streamlit_predict_custom_input
 
-MODEL_PATH = "tabpfn_model.pkl.gz"
+MODEL_PATH = "xgb_icu_model.pkl.gz"
 
 # ------------------------------
 # CSS: Minimal padding
