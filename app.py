@@ -61,7 +61,7 @@ with tabs[1]:
 - Automatically flags extreme vital signs as high risk before prediction.
 
 ### Dataset
-- Uses a synthetic dataset of 1,000 patient records.
+- Uses a synthetic dataset of 500 patient records.
 - Data generated using realistic clinical ranges for vitals.
 - ICU risk labels assigned using a rule-based risk scoring method.
 
