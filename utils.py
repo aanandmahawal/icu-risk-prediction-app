@@ -33,35 +33,26 @@ def explain_risk_factors(input_df, prediction, streamlit_mode=False):
 
     # Comorbidity Index
     if ci < 1:
-        reasons.append(f"🔻 Low Comorbidity Index: {ci} (below 1 — may indicate missing data)")
+        reasons.append(f"🔻 Low Comorbidity Index: {ci} (may indicate missing data)")
     elif ci > 2:
         reasons.append(f"⚠️ High Comorbidity Index: {ci} (above 2)")
 
-    # Output function
-    def out(msg, is_header=False):
-        if streamlit_mode:
-            import streamlit as st
-            if is_header:
-                st.markdown(f"### {msg}")
-            else:
-                st.markdown(msg)
-        else:
-            print(msg)
+    # Streamlit display only
+    import streamlit as st
 
-    # Explanation output
-    out("Explanation of Risk Factors:", is_header=True)
+    st.markdown("### 🧠 Explanation of Risk Factors")
 
     if prediction == 1:
         if reasons:
-            out("🛑 ICU likely required due to:")
+            st.error("🛑 ICU likely required due to:")
             for r in reasons:
-                out(f"- {r}")
+                st.markdown(f"- {r}")
         else:
-            out("🛑 ICU risk predicted, but no strong individual vital signs triggered.")
+            st.error("🛑 ICU risk predicted, but no critical vitals explicitly triggered.")
     else:
         if reasons:
-            out("⚠️ Some warning signs detected, but overall patient is not classified as ICU risk:")
+            st.warning("⚠️ Some vitals are outside normal range, but overall ICU risk is not predicted:")
             for r in reasons:
-                out(f"- {r}")
+                st.markdown(f"- {r}")
         else:
-            out("✅ All vital signs are within safe clinical range.")
+            st.success("✅ All vital signs appear to be within safe clinical ranges.")
