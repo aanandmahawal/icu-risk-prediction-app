@@ -66,10 +66,10 @@ with tabs[1]:
 - ICU risk labels assigned using a rule-based risk scoring method.
 
 ### Model & Training
-- Model: `TabPFNClassifier` (Probabilistic Transformer for tabular data).
-- Trained offline using `scikit-learn` compatible pipeline.
+- Model: `XGBoost Classifier` (Efficient and accurate gradient boosting model).
+- Trained offline using a custom `run_train.py` script.
 - Accuracy exceeds 90% on test data.
-- Trained model is saved `.pkl` and reused for predictions.
+- Final model is compressed and saved as `.pkl.gz` for optimized deployment.
 
 ### Key Features
 - Simple and intuitive UI using Streamlit.
