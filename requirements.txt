@@ -1,6 +1,8 @@
 streamlit
-tabpfn
-scikit-learn
 pandas
+numpy
+joblib
+scikit-learn
 matplotlib
 seaborn
+tabpfn==2.0.9
