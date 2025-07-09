@@ -1,8 +1,8 @@
 streamlit
 pandas
 numpy
-joblib
+xgboost
 scikit-learn
+joblib
 matplotlib
 seaborn
-tabpfn==2.0.9
