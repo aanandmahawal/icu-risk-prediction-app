@@ -39,7 +39,7 @@ def streamlit_predict_custom_input(clf):
         )
 
         with st.spinner("🔍 Predicting ICU Risk... Please wait a few seconds..."):
-            time.sleep(1.5)  # UX delay to simulate real model prediction time
+            time.sleep(3)  # UX delay to simulate real model prediction time
 
             try:
                 if force_icu:
