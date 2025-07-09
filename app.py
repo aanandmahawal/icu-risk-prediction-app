@@ -1,57 +1,84 @@
 import streamlit as st
-from data_generator import generate_synthetic_data
-from trainer import train_and_evaluate, show_accuracy_matrix  # ✅ Updated import
+import os
+import joblib
 from predictor import streamlit_predict_custom_input
 
-# 🔧 CSS: Remove top padding for cleaner title layout
+MODEL_PATH = "tabpfn_model.pkl"
+
+# ------------------------------
+# CSS: Minimal padding
+# ------------------------------
 st.markdown("""
     <style>
-        .block-container {
-            padding-top: 1rem;
-        }
+        .block-container { padding-top: 1rem; }
+        .about-section h3 { margin-top: 1.5rem; }
+        .about-section li { margin-bottom: 0.4rem; }
     </style>
 """, unsafe_allow_html=True)
 
+# ------------------------------
 # Title
-st.title("🩺 ICU Risk Prediction App")
+# ------------------------------
+st.title("ICU Risk Prediction App")
 
-# Tabs: [Data & Training], [Model Evaluation], [Custom Prediction]
-tabs = st.tabs(["📁 Data & Training", "📊 Model Evaluation", "🔮 Custom Prediction"])
-
-# -------------------------------
-#  Tab 1: Data & Training
-# -------------------------------
-with tabs[0]:
-    st.subheader("📁 Generate Data and Train the Model")
-
-    if st.button("Generate Synthetic Data"):
-        st.session_state.X, st.session_state.y = generate_synthetic_data()
-        st.success("✅ Synthetic data generated!")
-
-    if "X" in st.session_state and "y" in st.session_state:
-        if st.button("Train Model"):
-            clf, y_test, y_pred = train_and_evaluate(st.session_state.X, st.session_state.y)
-            st.session_state.clf = clf
-            st.session_state.y_test = y_test
-            st.session_state.y_pred = y_pred
-            st.success("✅ Model trained and evaluation complete!")
-
-# -------------------------------
-#  Tab 2: Model Evaluation
-# -------------------------------
-with tabs[1]:
-    st.subheader("📊 Model Performance Metrics")
-    if "y_test" in st.session_state and "y_pred" in st.session_state:
-        show_accuracy_matrix(st.session_state.y_test, st.session_state.y_pred)
+# ------------------------------
+# Load Model (once per session)
+# ------------------------------
+if "clf" not in st.session_state:
+    if os.path.exists(MODEL_PATH):
+        st.session_state.clf = joblib.load(MODEL_PATH)
+        st.success("Model loaded successfully.")
     else:
-        st.warning("⚠️ Please train the model first.")
+        st.error("Trained model file not found. Please upload or train a model.")
 
-# -------------------------------
-#  Tab 3: ICU Prediction
-# -------------------------------
-with tabs[2]:
-    st.subheader(" Predict ICU Risk from Custom Input")
+# ------------------------------
+# Tabs: Prediction | About
+# ------------------------------
+tabs = st.tabs([" Predict ICU Risk", "About the App"])
+
+# ------------------------------
+# Tab 1: Predict ICU Risk
+# ------------------------------
+with tabs[0]:
+    st.subheader("Predict ICU Risk from Patient Vitals")
+
     if "clf" in st.session_state:
         streamlit_predict_custom_input(st.session_state.clf)
     else:
-        st.info("ℹ️ Train the model to enable ICU prediction.")
+        st.warning("Model is not loaded. Prediction cannot proceed.")
+
+# ------------------------------
+# Tab 2: About
+# ------------------------------
+with tabs[1]:
+    st.markdown("## About the ICU Risk Prediction App")
+    st.markdown("""
+<div class="about-section">
+
+### How the Model Works
+- Accepts patient vital inputs: Heart Rate, Blood Pressure, Temperature, Respiratory Rate, and Comorbidity Index.
+- Predicts whether the patient is likely to require ICU care using a pre-trained machine learning model.
+- Automatically flags extreme vital signs as high risk before prediction.
+
+### Dataset
+- Uses a synthetic dataset of 1,000 patient records.
+- Data generated using realistic clinical ranges for vitals.
+- ICU risk labels assigned using a rule-based risk scoring method.
+
+### Model & Training
+- Model: `TabPFNClassifier` (Probabilistic Transformer for tabular data).
+- Trained offline using `scikit-learn` compatible pipeline.
+- Accuracy exceeds 90% on test data.
+- Trained model is saved `.pkl` and reused for predictions.
+
+### Key Features
+- Simple and intuitive UI using Streamlit.
+- Predicts ICU risk instantly from vitals.
+- Provides explanation for predictions based on medical thresholds.
+
+### Use Case
+- Can assist in early triage in hospitals or remote settings.
+- Useful in EHR systems or healthcare dashboards for ICU prioritization.
+
+</div>
+""", unsafe_allow_html=True)
