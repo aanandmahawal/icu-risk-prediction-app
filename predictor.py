@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import time
 from utils import explain_risk_factors
 
 def streamlit_predict_custom_input(clf):
@@ -37,7 +38,9 @@ def streamlit_predict_custom_input(clf):
             ComorbidityIndex > 3
         )
 
-        with st.spinner("🔎 Predicting..."):
+        with st.spinner("🔍 Predicting ICU Risk... Please wait a few seconds..."):
+            time.sleep(1.5)  # UX delay to simulate real model prediction time
+
             try:
                 if force_icu:
                     prediction = 1
@@ -49,18 +52,19 @@ def streamlit_predict_custom_input(clf):
                     except Exception:
                         prob = None
 
-                # Show prediction result
+                # Stylish result
                 if prediction == 1:
-                    st.error("🛑 Prediction: ICU Risk")
+                    st.error("🛑 Prediction: **High ICU Risk**")
                 else:
-                    st.success("✅ Prediction: No ICU Risk")
+                    st.success("✅ Prediction: **No ICU Risk**")
 
                 if prob is not None:
-                    st.info(f"📈 ICU Risk Probability: **{prob:.2%}**")
+                    st.info(f"📈 Predicted ICU Risk Probability: **{prob:.2%}**")
 
-                # Expandable risk explanation
-                with st.expander("🧠 Explanation of Risk Factors"):
+                with st.expander("📋 Explanation of Risk Factors"):
                     explain_risk_factors(input_df, prediction, streamlit_mode=True)
+
+                st.balloons()  # optional: fun effect
 
             except Exception as e:
                 st.error(f"❌ Prediction failed: {str(e)}")
