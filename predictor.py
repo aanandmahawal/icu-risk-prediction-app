@@ -20,7 +20,7 @@ def streamlit_predict_custom_input(clf):
             'ComorbidityIndex': ComorbidityIndex
         }])
 
-        # 🚨 ICU risk override for extreme values
+        # 🚨 Override for extreme ICU cases
         force_icu = (
             HR < 50 or HR > 130 or
             BP < 80 or BP > 180 or
@@ -35,12 +35,15 @@ def streamlit_predict_custom_input(clf):
                     prediction = 1
                     prob = 1.0
                 else:
-                    prediction = clf.predict(input_df.to_numpy())[0]
-                    try:
-                        prob = clf.predict_proba(input_df.to_numpy())[0][1]
-                    except:
+                    prediction = clf.predict(input_df.values)[0]
+
+                    # Check if the model supports predict_proba
+                    if hasattr(clf, "predict_proba"):
+                        prob = clf.predict_proba(input_df.values)[0][1]
+                    else:
                         prob = None
 
+                # 🧠 Display result
                 if prediction == 1:
                     st.error("🛑 Prediction: ICU Risk")
                 else:
@@ -49,7 +52,8 @@ def streamlit_predict_custom_input(clf):
                 if prob is not None:
                     st.info(f"📈 ICU Risk Probability: **{prob:.2%}**")
 
+                # 📊 Explain why this prediction was made
                 explain_risk_factors(input_df, prediction, streamlit_mode=True)
 
             except Exception as e:
-                st.error(f"Prediction failed: {str(e)}")
+                st.error(f"❌ Prediction failed: {str(e)}")
