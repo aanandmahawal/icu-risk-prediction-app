@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def generate_synthetic_data(n_samples=100):
+def generate_synthetic_data(n_samples=1000):
     np.random.seed(42)
     X = pd.DataFrame({
         'HR': np.random.normal(80, 10, n_samples),
