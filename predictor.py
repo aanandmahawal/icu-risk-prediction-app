@@ -64,7 +64,7 @@ def streamlit_predict_custom_input(clf):
                 with st.expander("📋 Explanation of Risk Factors"):
                     explain_risk_factors(input_df, prediction, streamlit_mode=True)
 
-                st.balloons()  # optional: fun effect
+                st.success("Prediction complete. You may review the risk level and explanation above.")
 
             except Exception as e:
                 st.error(f"❌ Prediction failed: {str(e)}")
