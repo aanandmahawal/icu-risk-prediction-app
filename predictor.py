@@ -3,15 +3,23 @@ import streamlit as st
 from utils import explain_risk_factors
 
 def streamlit_predict_custom_input(clf):
-    st.subheader("🧾 Enter Patient Vitals")
+    st.subheader("🧾 Patient Vital Signs Input")
 
-    HR = st.number_input("💓 Heart Rate (bpm)", value=80)
-    BP = st.number_input("🩸 Blood Pressure (mmHg)", value=120)
-    Temp = st.number_input("🌡️ Body Temperature (°F)", value=98.6)
-    RespRate = st.number_input("🫁 Respiratory Rate (breaths/min)", value=18)
-    ComorbidityIndex = st.slider("📊 Comorbidity Index", 0, 5, value=2)
+    with st.form("icu_form"):
+        col1, col2 = st.columns(2)
 
-    if st.button("🚨 Predict ICU Risk"):
+        with col1:
+            HR = st.number_input("💓 Heart Rate (bpm)", value=80, step=1)
+            BP = st.number_input("🩸 Blood Pressure (mmHg)", value=120, step=1)
+            Temp = st.number_input("🌡️ Body Temperature (°F)", value=98.6)
+
+        with col2:
+            RespRate = st.number_input("🫁 Respiratory Rate (breaths/min)", value=18, step=1)
+            ComorbidityIndex = st.slider("📊 Comorbidity Index", 0, 5, value=2)
+
+        submitted = st.form_submit_button("🚨 Predict ICU Risk")
+
+    if submitted:
         input_df = pd.DataFrame([{
             'HR': HR,
             'BP': BP,
@@ -20,7 +28,7 @@ def streamlit_predict_custom_input(clf):
             'ComorbidityIndex': ComorbidityIndex
         }])
 
-        # 🚨 ICU risk override for extreme values
+        # ICU override rule
         force_icu = (
             HR < 50 or HR > 130 or
             BP < 80 or BP > 180 or
@@ -38,9 +46,10 @@ def streamlit_predict_custom_input(clf):
                     prediction = clf.predict(input_df.to_numpy())[0]
                     try:
                         prob = clf.predict_proba(input_df.to_numpy())[0][1]
-                    except:
+                    except Exception:
                         prob = None
 
+                # Show prediction result
                 if prediction == 1:
                     st.error("🛑 Prediction: ICU Risk")
                 else:
@@ -49,7 +58,9 @@ def streamlit_predict_custom_input(clf):
                 if prob is not None:
                     st.info(f"📈 ICU Risk Probability: **{prob:.2%}**")
 
-                explain_risk_factors(input_df, prediction, streamlit_mode=True)
+                # Expandable risk explanation
+                with st.expander("🧠 Explanation of Risk Factors"):
+                    explain_risk_factors(input_df, prediction, streamlit_mode=True)
 
             except Exception as e:
-                st.error(f"Prediction failed: {str(e)}")
+                st.error(f"❌ Prediction failed: {str(e)}")
