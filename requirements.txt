@@ -4,4 +4,3 @@ scikit-learn
 pandas
 matplotlib
 seaborn
-xgboost
