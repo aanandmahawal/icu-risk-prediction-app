@@ -20,7 +20,7 @@ st.set_page_config(
 )
 
 # ===================================================
-# CSS
+# LOAD CSS
 # ===================================================
 
 st.markdown(load_css(), unsafe_allow_html=True)
@@ -28,9 +28,6 @@ st.markdown(load_css(), unsafe_allow_html=True)
 # ===================================================
 # SESSION STATE
 # ===================================================
-
-if "page" not in st.session_state:
-    st.session_state.page = "ICU Risk Predictor"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -40,48 +37,12 @@ if "messages" not in st.session_state:
 # ===================================================
 
 if "clf" not in st.session_state:
+
     if os.path.exists(MODEL_PATH):
         st.session_state.clf = joblib.load(MODEL_PATH)
+
     else:
         st.error("Model file not found.")
-
-# ===================================================
-# SIDEBAR
-# ===================================================
-
-with st.sidebar:
-
-    st.markdown("## 🏥 Healthcare AI")
-
-    if st.button("📈 ICU Predictor", use_container_width=True):
-        st.session_state.page = "ICU Risk Predictor"
-
-    if st.button("🤖 Medical Chatbot", use_container_width=True):
-        st.session_state.page = "Medical AI Chatbot"
-
-    if st.button("📖 About", use_container_width=True):
-        st.session_state.page = "About"
-
-    st.markdown("---")
-
-    if st.button("🗑 Clear Chat History", use_container_width=True):
-
-        st.session_state.messages = []
-
-        if st.session_state.page == "Medical AI Chatbot":
-            st.rerun()
-
-    st.markdown("---")
-
-    st.info(
-        """
-        AI-powered healthcare assistant
-
-        ✔ ICU Risk Prediction
-        ✔ Medical AI Chatbot
-        ✔ Health Education
-        """
-    )
 
 # ===================================================
 # HEADER
@@ -101,87 +62,115 @@ st.markdown(
 )
 
 # ===================================================
-# ALWAYS VISIBLE NAVIGATION
+# TOP NAVIGATION
 # ===================================================
 
-nav1, nav2, nav3 = st.columns(3)
-
-with nav1:
-    if st.button("📈 Predictor", use_container_width=True):
-        st.session_state.page = "ICU Risk Predictor"
-
-with nav2:
-    if st.button("🤖 Chatbot", use_container_width=True):
-        st.session_state.page = "Medical AI Chatbot"
-
-with nav3:
-    if st.button("📖 About", use_container_width=True):
-        st.session_state.page = "About"
-
-st.markdown("---")
-
-page = st.session_state.page
+page = st.radio(
+    "Navigation",
+    [
+        "📈 ICU Risk Predictor",
+        "🤖 Medical AI Chatbot",
+        "📖 About"
+    ],
+    horizontal=True,
+    label_visibility="collapsed"
+)
 
 # ===================================================
-# PAGE 1
+# SIDEBAR
 # ===================================================
 
-if page == "ICU Risk Predictor":
+with st.sidebar:
+
+    st.markdown("## 🏥 RiskCare")
+
+    st.markdown("---")
+
+    st.info(
+        """
+        RiskCare is an AI-powered healthcare assistant
+        that combines machine learning-based ICU risk
+        prediction with a Generative AI medical chatbot.
+
+        It helps assess patient risk, explain medical
+        conditions, and provide healthcare education
+        through an interactive dashboard.
+        """
+    )
+
+    st.markdown("---")
+
+    st.caption(
+        "Built with Streamlit, XGBoost, Groq and Llama 3.1"
+    )
+
+# ===================================================
+# ICU RISK PREDICTOR
+# ===================================================
+
+if page == "📈 ICU Risk Predictor":
 
     st.markdown(
         """
         <div class="health-card">
-            <h3>📈 ICU Risk Prediction</h3>
-            Enter patient vitals and clinical information
-            to estimate ICU admission risk.
+        <h3>📈 ICU Risk Prediction</h3>
+        Predict ICU admission risk using patient vitals.
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    with col1:
-        st.metric("Model", "XGBoost")
+    with c1:
+        st.metric(
+            "🤖 Model",
+            "XGBoost"
+        )
 
-    with col2:
-        st.metric("Use Case", "ICU Triage")
+    with c2:
+        st.metric(
+            "🏥 Use Case",
+            "ICU Triage"
+        )
 
-    with col3:
-        st.metric("Prediction", "Real-Time")
+    with c3:
+        st.metric(
+            "📊 Result",
+            "Risk Score"
+        )
 
     st.markdown("---")
 
     if "clf" in st.session_state:
+
         streamlit_predict_custom_input(
             st.session_state.clf
         )
-    else:
-        st.warning("Model not loaded.")
 
 # ===================================================
-# PAGE 2
+# MEDICAL CHATBOT
 # ===================================================
 
-elif page == "Medical AI Chatbot":
+elif page == "🤖 Medical AI Chatbot":
 
-    title_col1, title_col2 = st.columns([5, 1])
+    c1, c2 = st.columns([5, 1])
 
-    with title_col1:
+    with c1:
 
         st.markdown(
             """
             <div class="chat-header">
-                🤖 Medical AI Assistant
+            🤖 Medical AI Assistant
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    with title_col2:
+    with c2:
 
         if st.button(
-            "🗑 New Chat",
+            "🧹 Clear Chat",
             use_container_width=True
         ):
             st.session_state.messages = []
@@ -190,9 +179,9 @@ elif page == "Medical AI Chatbot":
     st.markdown(
         """
         <div class="medical-warning">
-        ⚠️ This AI provides educational information only.
-        It does NOT replace professional medical advice.
-        For emergencies, contact a healthcare professional immediately.
+        ⚠️ Educational information only.
+        Consult qualified healthcare professionals
+        for diagnosis or treatment decisions.
         </div>
         """,
         unsafe_allow_html=True
@@ -202,16 +191,21 @@ elif page == "Medical AI Chatbot":
 
         st.info(
             """
-            Try asking:
+            Suggested Questions
 
             • What are symptoms of diabetes?
-            • Explain high blood pressure.
-            • What causes fever and headache?
+
+            • Explain hypertension.
+
+            • Causes of chest pain?
+
             • How can I improve heart health?
+
+            • What does high blood pressure mean?
+
+            • Explain my symptoms in simple language.
             """
         )
-
-    # CHAT HISTORY
 
     for msg in st.session_state.messages:
 
@@ -236,7 +230,9 @@ elif page == "Medical AI Chatbot":
 
         with st.chat_message("assistant"):
 
-            with st.spinner("🩺 Analyzing..."):
+            with st.spinner(
+                "🩺 Analyzing your question..."
+            ):
 
                 response = get_medical_response(
                     prompt
@@ -252,67 +248,89 @@ elif page == "Medical AI Chatbot":
         )
 
 # ===================================================
-# PAGE 3
+# ABOUT PAGE
 # ===================================================
 
-elif page == "About":
+elif page == "📖 About":
 
     st.markdown(
         """
         <div class="health-card">
-            <h2>📖 About the Project</h2>
+        <h2>📖 About RiskCare</h2>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown("""
-### 🔬 ICU Risk Prediction
+    st.markdown(
+        """
 
-Predicts ICU admission risk using an XGBoost model trained on patient vital signs.
+### 🏥 Overview
 
-#### Inputs
+RiskCare is an AI-powered healthcare assistant that combines
+machine learning and Generative AI to support healthcare
+education and ICU risk assessment.
+
+---
+
+### 📈 ICU Risk Prediction
+
+Uses an XGBoost model trained on patient vital signs to
+estimate the likelihood of ICU admission.
+
+Input Features:
+
 - Heart Rate
 - Blood Pressure
 - Temperature
 - Respiratory Rate
 - Comorbidity Index
 
+Output:
+
+- ICU Risk Probability (%)
+- Risk Classification
+- Explanation of Risk Factors
+
 ---
 
-### 🤖 Medical AI Chatbot
+### 🤖 Medical AI Assistant
 
 Powered by:
+
 - Groq API
 - Llama 3.1
-- Streamlit
+- Streamlit Chat Interface
 
 Capabilities:
+
 - Symptom explanations
 - Disease information
-- Medical education
-- Health guidance
-
----
-
-### ⚠ Disclaimer
-
-This application is intended for educational and demonstration purposes only.
-
-It does not diagnose, prescribe, or replace professional medical consultation.
+- Medical terminology assistance
+- Preventive healthcare guidance
+- Health education
 
 ---
 
 ### 🛠 Tech Stack
 
 - Python
-- Streamlit
 - XGBoost
+- Streamlit
 - Groq API
 - Llama 3.1
 - Joblib
-""")
 
-    st.success(
-        "Built with Machine Learning + Generative AI"
+---
+
+### ⚠ Disclaimer
+
+This application is intended for educational
+and demonstration purposes only.
+
+It is not designed to diagnose,
+treat, prescribe, or replace
+professional medical consultation.
+
+        """
     )
