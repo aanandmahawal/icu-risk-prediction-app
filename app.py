@@ -1,89 +1,318 @@
 import streamlit as st
 import os
 import joblib
+
 from predictor import streamlit_predict_custom_input
+from chatbot import get_medical_response
+from styles import load_css
 
 MODEL_PATH = "xgb_icu_model.pkl.gz"
 
-# ------------------------------
-# CSS: Minimal padding and spacing
-# ------------------------------
-st.markdown("""
-    <style>
-        .block-container { padding-top: 1rem; }
-        .about-section h3 { margin-top: 1.5rem; }
-        .about-section li { margin-bottom: 0.4rem; }
-        .stButton button {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# ===================================================
+# PAGE CONFIG
+# ===================================================
 
-# ------------------------------
-# Title
-# ------------------------------
-st.title("ICU Risk Prediction App")
+st.set_page_config(
+    page_title="AI Healthcare Assistant",
+    page_icon="🏥",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# ------------------------------
-# Load Model (once per session)
-# ------------------------------
+# ===================================================
+# CSS
+# ===================================================
+
+st.markdown(load_css(), unsafe_allow_html=True)
+
+# ===================================================
+# SESSION STATE
+# ===================================================
+
+if "page" not in st.session_state:
+    st.session_state.page = "ICU Risk Predictor"
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# ===================================================
+# LOAD MODEL
+# ===================================================
+
 if "clf" not in st.session_state:
     if os.path.exists(MODEL_PATH):
         st.session_state.clf = joblib.load(MODEL_PATH)
-        st.success("Model loaded successfully.")
     else:
-        st.error("Trained model file not found. Please upload or train a model.")
+        st.error("Model file not found.")
 
-# ------------------------------
-# Tabs: Predict | About
-# ------------------------------
-tabs = st.tabs(["Predict ICU Risk", "About the App"])
+# ===================================================
+# SIDEBAR
+# ===================================================
 
-# ------------------------------
-# Tab 1: Predict ICU Risk
-# ------------------------------
-with tabs[0]:
-    st.subheader("Enter Patient Vitals to Predict ICU Risk")
+with st.sidebar:
+
+    st.markdown("## 🏥 Healthcare AI")
+
+    if st.button("📈 ICU Predictor", use_container_width=True):
+        st.session_state.page = "ICU Risk Predictor"
+
+    if st.button("🤖 Medical Chatbot", use_container_width=True):
+        st.session_state.page = "Medical AI Chatbot"
+
+    if st.button("📖 About", use_container_width=True):
+        st.session_state.page = "About"
+
+    st.markdown("---")
+
+    if st.button("🗑 Clear Chat History", use_container_width=True):
+
+        st.session_state.messages = []
+
+        if st.session_state.page == "Medical AI Chatbot":
+            st.rerun()
+
+    st.markdown("---")
+
+    st.info(
+        """
+        AI-powered healthcare assistant
+
+        ✔ ICU Risk Prediction
+        ✔ Medical AI Chatbot
+        ✔ Health Education
+        """
+    )
+
+# ===================================================
+# HEADER
+# ===================================================
+
+st.markdown(
+    """
+    <div class="main-title">
+        🏥 AI Healthcare Assistant
+    </div>
+
+    <div class="subtitle">
+        ICU Risk Prediction + Medical AI Chatbot
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ===================================================
+# ALWAYS VISIBLE NAVIGATION
+# ===================================================
+
+nav1, nav2, nav3 = st.columns(3)
+
+with nav1:
+    if st.button("📈 Predictor", use_container_width=True):
+        st.session_state.page = "ICU Risk Predictor"
+
+with nav2:
+    if st.button("🤖 Chatbot", use_container_width=True):
+        st.session_state.page = "Medical AI Chatbot"
+
+with nav3:
+    if st.button("📖 About", use_container_width=True):
+        st.session_state.page = "About"
+
+st.markdown("---")
+
+page = st.session_state.page
+
+# ===================================================
+# PAGE 1
+# ===================================================
+
+if page == "ICU Risk Predictor":
+
+    st.markdown(
+        """
+        <div class="health-card">
+            <h3>📈 ICU Risk Prediction</h3>
+            Enter patient vitals and clinical information
+            to estimate ICU admission risk.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Model", "XGBoost")
+
+    with col2:
+        st.metric("Use Case", "ICU Triage")
+
+    with col3:
+        st.metric("Prediction", "Real-Time")
+
+    st.markdown("---")
 
     if "clf" in st.session_state:
-        streamlit_predict_custom_input(st.session_state.clf)
+        streamlit_predict_custom_input(
+            st.session_state.clf
+        )
     else:
-        st.warning("Model is not loaded. Prediction cannot proceed.")
+        st.warning("Model not loaded.")
 
-# ------------------------------
-# Tab 2: About the App
-# ------------------------------
-with tabs[1]:
-    st.markdown("## About the ICU Risk Prediction App")
+# ===================================================
+# PAGE 2
+# ===================================================
+
+elif page == "Medical AI Chatbot":
+
+    title_col1, title_col2 = st.columns([5, 1])
+
+    with title_col1:
+
+        st.markdown(
+            """
+            <div class="chat-header">
+                🤖 Medical AI Assistant
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with title_col2:
+
+        if st.button(
+            "🗑 New Chat",
+            use_container_width=True
+        ):
+            st.session_state.messages = []
+            st.rerun()
+
+    st.markdown(
+        """
+        <div class="medical-warning">
+        ⚠️ This AI provides educational information only.
+        It does NOT replace professional medical advice.
+        For emergencies, contact a healthcare professional immediately.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if len(st.session_state.messages) == 0:
+
+        st.info(
+            """
+            Try asking:
+
+            • What are symptoms of diabetes?
+            • Explain high blood pressure.
+            • What causes fever and headache?
+            • How can I improve heart health?
+            """
+        )
+
+    # CHAT HISTORY
+
+    for msg in st.session_state.messages:
+
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    prompt = st.chat_input(
+        "Ask a medical question..."
+    )
+
+    if prompt:
+
+        st.session_state.messages.append(
+            {
+                "role": "user",
+                "content": prompt
+            }
+        )
+
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+
+            with st.spinner("🩺 Analyzing..."):
+
+                response = get_medical_response(
+                    prompt
+                )
+
+                st.markdown(response)
+
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": response
+            }
+        )
+
+# ===================================================
+# PAGE 3
+# ===================================================
+
+elif page == "About":
+
+    st.markdown(
+        """
+        <div class="health-card">
+            <h2>📖 About the Project</h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.markdown("""
-<div class="about-section">
+### 🔬 ICU Risk Prediction
 
-### How the Model Works
-- Accepts patient vital inputs: Heart Rate, Blood Pressure, Temperature, Respiratory Rate, and Comorbidity Index.
-- Predicts whether the patient is likely to require ICU care using a pre-trained XGBoost model.
-- Automatically flags extreme vital signs as high risk before prediction.
+Predicts ICU admission risk using an XGBoost model trained on patient vital signs.
 
-### Dataset
-- Uses a synthetic dataset of 500 patient records.
-- Data generated using realistic clinical ranges for vitals.
-- ICU risk labels assigned using a rule-based scoring system.
+#### Inputs
+- Heart Rate
+- Blood Pressure
+- Temperature
+- Respiratory Rate
+- Comorbidity Index
 
-### Model & Training
-- Model: XGBoost Classifier – efficient and accurate.
-- Trained offline using a custom `run_train.py` script.
-- Final model is compressed and saved as `.pkl.gz` for optimized deployment.
+---
 
-### Key Features
-- Simple and intuitive UI using Streamlit.
-- Predicts ICU risk instantly from vitals.
-- Provides explanation for predictions based on medical thresholds.
+### 🤖 Medical AI Chatbot
 
-### Use Case
-- Can assist in early triage in hospitals or remote settings.
-- Useful in EHR systems or healthcare dashboards for ICU prioritization.
+Powered by:
+- Groq API
+- Llama 3.1
+- Streamlit
 
-</div>
-""", unsafe_allow_html=True)
+Capabilities:
+- Symptom explanations
+- Disease information
+- Medical education
+- Health guidance
 
+---
+
+### ⚠ Disclaimer
+
+This application is intended for educational and demonstration purposes only.
+
+It does not diagnose, prescribe, or replace professional medical consultation.
+
+---
+
+### 🛠 Tech Stack
+
+- Python
+- Streamlit
+- XGBoost
+- Groq API
+- Llama 3.1
+- Joblib
+""")
+
+    st.success(
+        "Built with Machine Learning + Generative AI"
+    )
