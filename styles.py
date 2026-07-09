@@ -3,7 +3,9 @@ def load_css():
     return """
     <style>
 
-    /* Hide Streamlit Branding */
+    /* ---------------------------
+       Streamlit Cleanup
+    --------------------------- */
 
     #MainMenu {
         visibility: hidden;
@@ -13,145 +15,168 @@ def load_css():
         visibility: hidden;
     }
 
-    header {
-        visibility: hidden;
+    /* IMPORTANT:
+       Do NOT hide header.
+       Streamlit uses it for sidebar toggle.
+    */
+
+    header[data-testid="stHeader"] {
+        background: rgba(255,255,255,0);
     }
 
+    /* ---------------------------
+       Main Background
+    --------------------------- */
 
-    /* Main App */
-
-    .main {
+    .stApp {
         background: linear-gradient(
             135deg,
-            #f4f7fa,
-            #eef7ff
+            #f8fbff,
+            #eef6ff
         );
     }
 
-    /* Title */
+    /* ---------------------------
+       Title
+    --------------------------- */
 
     .main-title {
+        text-align: center;
         font-size: 42px;
         font-weight: 800;
-        text-align: center;
         color: #0f172a;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .subtitle {
         text-align: center;
-        color: #64748b;
+        color: #475569;
         font-size: 18px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
-    /* Cards */
+    /* ---------------------------
+       Cards
+    --------------------------- */
 
     .health-card {
         background: white;
         padding: 20px;
-        border-radius: 20px;
-        box-shadow: 0px 4px 15px rgba(
-            0,
-            0,
-            0,
-            0.08
-        );
+        border-radius: 18px;
+        border: 1px solid #dbeafe;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         margin-bottom: 15px;
     }
 
-    /* Prediction Result */
-
-    .risk-high {
-        background: #fee2e2;
-        color: #b91c1c;
-        padding: 18px;
-        border-radius: 12px;
-        font-size: 18px;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .risk-medium {
-        background: #fef3c7;
-        color: #b45309;
-        padding: 18px;
-        border-radius: 12px;
-        font-size: 18px;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .risk-low {
-        background: #dcfce7;
-        color: #15803d;
-        padding: 18px;
-        border-radius: 12px;
-        font-size: 18px;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    /* Sidebar */
+    /* ---------------------------
+       Sidebar
+    --------------------------- */
 
     section[data-testid="stSidebar"] {
-        background: linear-gradient(
-            180deg,
-            #0f172a,
-            #1e293b
-        );
+        background: #f8fafc !important;
+        border-right: 1px solid #dbeafe;
     }
 
     section[data-testid="stSidebar"] * {
-        color: white !important;
+        color: #0f172a !important;
     }
 
-    /* Chat */
+    /* ---------------------------
+       Sidebar Buttons
+    --------------------------- */
+
+    section[data-testid="stSidebar"] .stButton button {
+
+        background: white !important;
+        color: #0f172a !important;
+
+        border: 1px solid #cbd5e1 !important;
+
+        border-radius: 10px;
+
+        font-weight: 600;
+    }
+
+    section[data-testid="stSidebar"] .stButton button:hover {
+
+        border: 1px solid #2563eb !important;
+
+        color: #2563eb !important;
+    }
+
+    /* ---------------------------
+       Global Buttons
+    --------------------------- */
+
+    .stButton button {
+
+        border-radius: 12px;
+
+        font-weight: 600;
+
+        padding: 0.6rem;
+    }
+
+    /* ---------------------------
+       Chat
+    --------------------------- */
 
     .chat-header {
-        font-size: 30px;
-        font-weight: 700;
-        color: #0f172a;
+
         text-align: center;
-        margin-bottom: 15px;
+
+        font-size: 32px;
+
+        font-weight: 700;
+
+        color: #0f172a;
+
+        margin-bottom: 10px;
     }
 
     .medical-warning {
+
         background: #fff7ed;
+
         border-left: 5px solid #ea580c;
+
         padding: 15px;
+
         border-radius: 10px;
+
         margin-bottom: 20px;
     }
 
-    /* Metric Cards */
+    /* ---------------------------
+       Navigation Bar
+    --------------------------- */
 
-    .metric-card {
-        background: white;
-        padding: 15px;
-        border-radius: 16px;
-        text-align: center;
-        box-shadow: 0px 4px 10px rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
-    }
+    div[role="radiogroup"] {
 
-    /* Buttons */
-
-    .stButton button {
-        width: 100%;
-        border-radius: 12px;
-        font-weight: 600;
         padding: 10px;
+
+        border-radius: 15px;
+
+        background: white;
+
+        border: 1px solid #dbeafe;
+
+        margin-bottom: 15px;
     }
 
-    /* Chat Input */
+    /* ---------------------------
+       Metrics
+    --------------------------- */
 
-    .stChatInputContainer {
+    [data-testid="stMetric"] {
+
+        background: white;
+
         border-radius: 15px;
+
+        padding: 10px;
+
+        border: 1px solid #dbeafe;
     }
 
     </style>
